@@ -3,15 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Pick-a-Door</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <script src="script.js" defer></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>🚪 Pick-a-Door Game</h1>
 
   <button id="connectBtn">🔗 Connect Wallet</button>
-<p id="walletStatus">🔌 Not connected</p>
+  <p id="walletStatus">🔌 Not connected</p>
   <button id="startBtn" disabled>🎮 Start Game (1 MON)</button>
 
   <div id="ownerPanel" style="display:none; margin-top:30px;">
@@ -20,9 +18,10 @@
     <button id="withdrawBtn">Withdraw</button>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-<script src="script.js"></script>
-
   <p id="status"></p>
+
+  <!-- ✅ Load ethers.js first, then your script -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
