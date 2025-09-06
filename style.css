@@ -49,36 +49,56 @@ button:hover {
   transform: translateY(-2px);
 }
 
+/* Doors container */
 #doors {
   margin-top: 20px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  gap: 20px;
 }
 
+/* Door using PNG */
 .door {
   width: 100px;
   height: 150px;
-  margin: 10px;
-  background: linear-gradient(to bottom, #8b4513, #5a2e0e);
+  background-image: url("pindoor.png");
+  background-size: cover;
+  background-position: center;
   border: 3px solid #f9d423;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
   cursor: pointer;
   box-shadow: 4px 4px 0px #000;
-  transition: transform 0.2s, background 0.3s;
+  transition: transform 0.2s;
+  position: relative;
 }
 
+/* Hover effect */
 .door:hover {
   transform: scale(1.05);
-  background: linear-gradient(to bottom, #a0522d, #6b3b17);
 }
 
-#status {
-  margin-top: 20px;
-  color: #0f0;
+/* Door number (overlay below) */
+.door::after {
+  content: attr(data-num);
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #f9d423;
   text-shadow: 1px 1px 0px #000;
+}
+
+/* Shake animation for trap */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(8px); }
+  75% { transform: translateX(-8px); }
+  100% { transform: translateX(0); }
+}
+
+.door.shake {
+  animation: shake 0.5s ease;
 }
