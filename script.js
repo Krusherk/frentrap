@@ -207,7 +207,15 @@ function renderDoors(stage) {
   doorsContainer.innerHTML = "";
 
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
-  const trap = Math.floor(Math.random() * numDoors); // pick trap index
+
+  // 🎯 pick 2 unique traps
+  let trap1 = Math.floor(Math.random() * numDoors);
+  let trap2;
+  do {
+    trap2 = Math.floor(Math.random() * numDoors);
+  } while (trap2 === trap1);
+
+  const traps = new Set([trap1, trap2]);
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
@@ -222,10 +230,11 @@ function renderDoors(stage) {
       door.classList.add("shake");
       setTimeout(() => door.classList.remove("shake"), 500);
 
-      if (i === trap) {
-        alert("💥 Oh no! That was the trap door. Game Over.");
+      if (traps.has(i)) {
+        alert("💥 Oh no! That was a trap door. Game Over.");
         await resetGame();
       } else {
+        alert("🎉 Safe! Proceeding to the next stage...");
         await pickDoor(i, numDoors);
       }
     };
