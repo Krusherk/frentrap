@@ -74,9 +74,8 @@ async function startGame() {
     alert("⚠️ Please connect your wallet first!");
     return;
   }
-
   try {
-    // ✅ check if already active
+    // ✅ Check if already in game
     let player = await contract.players(userAddress);
     if (player.active) {
       alert("⚠️ You already have an active game. Redirecting...");
@@ -84,6 +83,7 @@ async function startGame() {
       return;
     }
 
+    // ✅ Not active → start new game
     let tx = await contract.startGame({
       value: ethers.parseEther("1.0"),
       gasLimit: 300000n
@@ -146,10 +146,8 @@ async function withdrawFunds() {
 async function loadHouseBalance() {
   if (!provider) return;
   let balance = await provider.getBalance(CONTRACT_ADDRESS);
-  const el = document.getElementById("houseBalance");
-  if (el) {
-    el.innerText = ethers.formatEther(balance) + " MON";
-  }
+  document.getElementById("houseBalance").innerText =
+    ethers.formatEther(balance) + " MON";
 }
 
 async function loadGame() {
@@ -158,29 +156,23 @@ async function loadGame() {
   try {
     let player = await contract.players(userAddress);
 
-    const stageEl = document.getElementById("stage");
-    const multiplierEl = document.getElementById("multiplier");
-    const winningsEl = document.getElementById("winnings");
-    const cashOutBtn = document.getElementById("cashOut");
-    const doorsEl = document.getElementById("doors");
-
-    // ✅ skip if we are not on the game page
-    if (!stageEl || !multiplierEl || !winningsEl || !cashOutBtn || !doorsEl) {
-      return;
-    }
-
     if (player.active) {
-      stageEl.innerText = player.stage.toString();
-      multiplierEl.innerText = (player.multiplier / 10).toString() + "x";
-      winningsEl.innerText = (1 * player.multiplier / 10) + " MON";
-      cashOutBtn.style.display = "inline-block";
+      document.getElementById("stage").innerText = player.stage.toString();
+      document.getElementById("multiplier").innerText =
+        (player.multiplier / 10).toString() + "x";
+      document.getElementById("winnings").innerText =
+        (1 * player.multiplier / 10) + " MON";
+      document.getElementById("cashOut").style.display = "inline-block";
       renderDoors(player.stage);
     } else {
-      stageEl.innerText = "-";
-      multiplierEl.innerText = "-";
-      winningsEl.innerText = "-";
-      doorsEl.innerHTML = "";
-      cashOutBtn.style.display = "none";
+      document.getElementById("stage").innerText = "-";
+      document.getElementById("multiplier").innerText = "-";
+      document.getElementById("winnings").innerText = "-";
+      const doors = document.getElementById("doors");
+      if (doors) doors.innerHTML = "";
+      if (document.getElementById("cashOut")) {
+        document.getElementById("cashOut").style.display = "none";
+      }
     }
   } catch (err) {
     console.log("Load game error:", err.message);
@@ -212,7 +204,7 @@ function renderDoors(stage) {
 
 window.addEventListener("DOMContentLoaded", () => {
   const doorContainer = document.getElementById("doors");
-  if (!doorContainer) return; // ✅ prevent homepage crash
+  if (!doorContainer) return; // ✅ fix null error
 
   const numDoors = 5;
   for (let i = 0; i < numDoors; i++) {
