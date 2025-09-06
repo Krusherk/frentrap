@@ -162,9 +162,6 @@ async function loadHouseBalance() {
 
 async function loadGame() {
   if (!contract) return;
-if (player.active) {
-  if (document.getElementById("cashOut"))
-    document.getElementById("cashOut").style.display = "inline-block"; // ✅ always show claim
 
   try {
     let player = await contract.players(userAddress);
@@ -173,9 +170,15 @@ if (player.active) {
       if (document.getElementById("stage"))
         document.getElementById("stage").innerText = player.stage.toString();
       if (document.getElementById("multiplier"))
-        document.getElementById("multiplier").innerText = (player.multiplier / 10).toString() + "x";
+        document.getElementById("multiplier").innerText =
+          (player.multiplier / 10).toString() + "x";
       if (document.getElementById("winnings"))
-        document.getElementById("winnings").innerText = (1 * player.multiplier / 10) + " MON";
+        document.getElementById("winnings").innerText =
+          (1 * player.multiplier / 10) + " MON";
+
+      // always show cashOut
+      if (document.getElementById("cashOut"))
+        document.getElementById("cashOut").style.display = "inline-block";
 
       // show claim button only after stage >= 2
       if (document.getElementById("claimBtn")) {
@@ -188,11 +191,16 @@ if (player.active) {
 
       renderDoors(player.stage);
     } else {
-      if (document.getElementById("stage")) document.getElementById("stage").innerText = "-";
-      if (document.getElementById("multiplier")) document.getElementById("multiplier").innerText = "-";
-      if (document.getElementById("winnings")) document.getElementById("winnings").innerText = "-";
+      if (document.getElementById("stage"))
+        document.getElementById("stage").innerText = "-";
+      if (document.getElementById("multiplier"))
+        document.getElementById("multiplier").innerText = "-";
+      if (document.getElementById("winnings"))
+        document.getElementById("winnings").innerText = "-";
+
       const doors = document.getElementById("doors");
       if (doors) doors.innerHTML = "";
+
       if (document.getElementById("cashOut"))
         document.getElementById("cashOut").style.display = "none";
       if (document.getElementById("claimBtn"))
@@ -224,7 +232,7 @@ function renderDoors(stage) {
     door.setAttribute("data-num", i + 1);
 
     door.onclick = async () => {
-      // disable doors while processing
+      // disable doors after click
       const allDoors = document.querySelectorAll(".door");
       allDoors.forEach(d => (d.style.pointerEvents = "none"));
 
@@ -236,8 +244,8 @@ function renderDoors(stage) {
         await resetGame();
       } else {
         alert(`🎉 Safe! You cleared Stage ${stage}.`);
-        await pickDoor(i, numDoors);   // advance stage on-chain
-        await loadGame();              // 🔑 refresh doors + show claim
+        await pickDoor(i, numDoors);   // update stage on-chain
+        await loadGame();              // refresh UI
       }
     };
 
@@ -245,7 +253,9 @@ function renderDoors(stage) {
   }
 }
 
-// Initial door render for stage 1
+// Initial render handled by loadGame() after wallet connect
 window.addEventListener("DOMContentLoaded", () => {
-  renderDoors(1);
+  if (localStorage.getItem("connected") === "true") {
+    connectWallet();
+  }
 });
