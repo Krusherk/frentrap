@@ -229,3 +229,11 @@ function renderDoors(stage) {
   }
 }
 
+window.addEventListener("DOMContentLoaded", () => {
+  const doorContainer = document.getElementById("doors");
+  if (!doorContainer) return;
+
+  // Instead of hardcoding 5, use the same logic as renderDoors
+  renderDoors(1); // default stage = 1 (shows doors)
+});
+
