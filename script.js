@@ -81,7 +81,7 @@ async function startGame() {
       if (confirm("⚠️ You already have an active game. Do you want to reset it first?")) {
         await resetGame();
       } else {
-        return; // stop if user cancels
+        return;
       }
     }
 
@@ -111,7 +111,7 @@ async function pickDoor(choice, numDoors) {
   } catch (err) {
     console.log(err);
     alert("💥 Trap! Game Over. Redirecting to homepage...");
-    await resetGame(); // reset properly so no stuck "active" flag
+    await resetGame();
   }
 }
 
@@ -150,7 +150,7 @@ async function resetGame() {
     await tx.wait();
     alert("🔄 Game reset!");
 
-    await loadGame(); // refresh state immediately
+    await loadGame();
     window.location.href = "index.html";
   } catch (err) {
     console.error(err);
@@ -184,12 +184,9 @@ async function loadGame() {
       if (document.getElementById("cashOut"))
         document.getElementById("cashOut").style.display = "inline-block";
 
+      // ✅ Always show claim button during active game
       if (document.getElementById("claimBtn")) {
-        if (Number(player.stage) >= 2) {
-          document.getElementById("claimBtn").style.display = "inline-block";
-        } else {
-          document.getElementById("claimBtn").style.display = "none";
-        }
+        document.getElementById("claimBtn").style.display = "inline-block";
       }
 
       renderDoors(Number(player.stage));
@@ -241,9 +238,3 @@ function renderDoors(stage) {
     doorsContainer.appendChild(door);
   }
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  const doorContainer = document.getElementById("doors");
-  if (!doorContainer) return;
-  renderDoors(1);
-});
