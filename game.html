@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Pick-a-Door - Game</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <script src="script.js" defer></script>
   <link rel="stylesheet" href="style.css">
   <style>
     .door {
@@ -36,11 +34,11 @@
 
   <button id="cashOut" style="display:none;">💰 Cash Out</button>
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-<script src="script.js"></script>
-
-
-<p id="walletStatus">🔌 Not connected</p>
+  <p id="walletStatus">🔌 Not connected</p>
   <p id="status"></p>
+
+  <!-- ✅ Load ethers.js first, then your script -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
