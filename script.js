@@ -76,10 +76,13 @@ async function startGame() {
   }
   try {
     let player = await contract.players(userAddress);
+
     if (player.active) {
-      alert("⚠️ You already have an active game. Redirecting...");
-      window.location.href = "game.html";
-      return;
+      if (confirm("⚠️ You already have an active game. Do you want to reset it first?")) {
+        await resetGame();
+      } else {
+        return; // stop if user cancels
+      }
     }
 
     let tx = await contract.startGame({
@@ -108,7 +111,7 @@ async function pickDoor(choice, numDoors) {
   } catch (err) {
     console.log(err);
     alert("💥 Trap! Game Over. Redirecting to homepage...");
-    window.location.href = "index.html";
+    await resetGame(); // reset properly so no stuck "active" flag
   }
 }
 
@@ -146,6 +149,8 @@ async function resetGame() {
     let tx = await contract.resetGame();
     await tx.wait();
     alert("🔄 Game reset!");
+
+    await loadGame(); // refresh state immediately
     window.location.href = "index.html";
   } catch (err) {
     console.error(err);
