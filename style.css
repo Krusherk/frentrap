@@ -1,18 +1,27 @@
-/* Google Pixel Font */
+/* Pixel Font */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 body {
   margin: 0;
   padding: 0;
-  background: #111;
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #0a0014, #1a002a, #32004b);
+  background-size: 400% 400%;
+  animation: gradientBG 12s ease infinite;
   color: #fff;
   font-family: 'Press Start 2P', monospace;
   text-align: center;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 h1, h2 {
