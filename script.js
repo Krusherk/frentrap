@@ -162,6 +162,9 @@ async function loadHouseBalance() {
 
 async function loadGame() {
   if (!contract) return;
+if (player.active) {
+  if (document.getElementById("cashOut"))
+    document.getElementById("cashOut").style.display = "inline-block"; // ✅ always show claim
 
   try {
     let player = await contract.players(userAddress);
@@ -208,7 +211,7 @@ function renderDoors(stage) {
 
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
 
-  // 🎯 pick 3 unique traps
+  // 🎯 Pick 3 unique traps
   let traps = new Set();
   while (traps.size < 3) {
     traps.add(Math.floor(Math.random() * numDoors));
@@ -221,7 +224,7 @@ function renderDoors(stage) {
     door.setAttribute("data-num", i + 1);
 
     door.onclick = async () => {
-      // disable just once until tx finishes
+      // disable doors while processing
       const allDoors = document.querySelectorAll(".door");
       allDoors.forEach(d => (d.style.pointerEvents = "none"));
 
@@ -232,9 +235,9 @@ function renderDoors(stage) {
         alert("💥 Oh no! That was a trap door. Game Over.");
         await resetGame();
       } else {
-        alert("🎉 Safe! Proceeding to the next stage...");
-        await pickDoor(i, numDoors);
-        await loadGame(); // ✅ refresh UI + show claim button
+        alert(`🎉 Safe! You cleared Stage ${stage}.`);
+        await pickDoor(i, numDoors);   // advance stage on-chain
+        await loadGame();              // 🔑 refresh doors + show claim
       }
     };
 
