@@ -176,31 +176,18 @@ function renderDoors(stage) {
   // Dynamic door count (5–8 based on stage)
   let numDoors = Math.floor(Math.random() * 4) + 5;
 
-  // Pick 2 random traps
-  let trapIndexes = new Set();
-  while (trapIndexes.size < 2) {
-    trapIndexes.add(Math.floor(Math.random() * numDoors));
-  }
-
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
+
+    // Use your door PNG
     door.style.backgroundImage = "url('pindoor.png')";
-    door.style.backgroundSize = "cover";
-    door.style.backgroundPosition = "center";
+
+    // Door number overlay
     door.setAttribute("data-num", i + 1);
 
-    door.onclick = async () => {
-      if (trapIndexes.has(i)) {
-        // Trap picked
-        door.classList.add("shake");
-        setTimeout(() => door.classList.remove("shake"), 500);
-        alert("💥 Trap! You lost your MON.");
-      } else {
-        // Safe → on-chain pick
-        await pickDoor(i, numDoors);
-      }
-    };
+    // Click handler
+    door.onclick = () => pickDoor(i, numDoors);
 
     doorsContainer.appendChild(door);
   }
