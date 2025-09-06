@@ -20,44 +20,43 @@
 
   <p id="status"></p>
 
-  <!-- ✅ Load ethers.js first -->
-<!-- Load ethers v6 UMD first -->
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+  <!-- ✅ Load ethers v6 -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  <script>
+    // ethers v6 is available on window
+    const { ethers } = window;
 
-  // ethers v6 is attached to window
-  const { ethers } = window;
+    let provider, signer, userAddress;
 
-  let provider, signer, userAddress;
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert("❌ Please install MetaMask!");
+        return;
+      }
+      try {
+        // ✅ v6 provider
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+        userAddress = await signer.getAddress();
 
-  async function connectWallet() {
-    if (!window.ethereum) {
-      alert("❌ Please install MetaMask!");
-      return;
+        document.getElementById("walletStatus").innerText =
+          `✅ Connected: ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+
+        console.log("Wallet connected:", userAddress);
+
+        // enable Start Game button once connected
+        document.getElementById("startBtn").disabled = false;
+      } catch (err) {
+        console.error("Connection failed:", err);
+        alert("Connection failed: " + err.message);
+      }
     }
-    try {
-      // ✅ v6 syntax
-      provider = new ethers.BrowserProvider(window.ethereum);
-      signer = await provider.getSigner();
-      userAddress = await signer.getAddress();
 
-      document.getElementById("walletStatus").innerText =
-        `✅ Connected: ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+    document.getElementById("connectBtn").addEventListener("click", connectWallet);
+  </script>
 
-      console.log("Wallet connected:", userAddress);
-    } catch (err) {
-      console.error("Connection failed:", err);
-      alert("Connection failed: " + err.message);
-    }
-  }
-
-  document.getElementById("connectBtn").addEventListener("click", connectWallet);
-</script>
-
-  <!-- ✅ Then load your script -->
+  <!-- ✅ Finally load your game logic -->
   <script src="script.js"></script>
 </body>
 </html>
