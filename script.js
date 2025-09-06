@@ -112,7 +112,8 @@ async function pickDoor(choice, numDoors) {
       setTimeout(() => doors[choice].classList.remove("shake"), 500);
     }
 
-    alert("💥 Trap! You lost this round.");
+    alert("💥 Trap! You lost this round. Redirecting to homepage...");
+    window.location.href = "index.html"; // ✅ redirect after loss
   }
 }
 
