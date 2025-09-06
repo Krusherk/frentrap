@@ -201,8 +201,8 @@ function renderDoors(stage) {
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
   let traps = [];
 
-  // pick 3 unique random traps
-  while (traps.length < 3) {
+  // Pick 3 unique random trap doors
+  while (traps.length < 3 && traps.length < numDoors) {
     let r = Math.floor(Math.random() * numDoors);
     if (!traps.includes(r)) traps.push(r);
   }
@@ -212,18 +212,16 @@ function renderDoors(stage) {
     door.classList.add("door");
     door.setAttribute("data-num", i + 1);
 
-    // If it's a trap door, make it shake visually
-    if (traps.includes(i)) {
-      door.classList.add("shake");
-    }
-
     door.onclick = async () => {
+      // Add shake animation when clicked
+      door.classList.add("shake");
+      setTimeout(() => door.classList.remove("shake"), 500);
+
       if (traps.includes(i)) {
-        alert("💥 You picked a TRAP door! Game over.");
+        alert("💥 Trap! You lost this round.");
         await resetGame(); // end game on-chain
-        return;
       } else {
-        await pickDoor(i, numDoors); // safe → call contract to continue
+        await pickDoor(i, numDoors); // safe → continue on-chain
       }
     };
 
