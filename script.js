@@ -189,3 +189,27 @@ function renderDoors(stage) {
     doorsContainer.appendChild(door);
   }
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  const doorContainer = document.getElementById("doors");
+
+  // Number of doors (you can make this dynamic if needed)
+  const numDoors = 5;
+
+  for (let i = 0; i < numDoors; i++) {
+    const door = document.createElement("div");
+    door.className = "door";
+    door.style.backgroundImage = "url('pindoor.png')"; // ✅ Make sure this file exists in same folder
+    door.dataset.index = i; // so you can track which door was clicked
+
+    // Example click handler
+    door.addEventListener("click", () => {
+      document.getElementById("status").textContent = `You picked door #${i + 1}`;
+      door.classList.add("shake");
+
+      setTimeout(() => door.classList.remove("shake"), 300);
+    });
+
+    doorContainer.appendChild(door);
+  }
+});
