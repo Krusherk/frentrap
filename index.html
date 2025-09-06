@@ -22,41 +22,6 @@
 
   <!-- ✅ Load ethers v6 -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
-
-  <script>
-    // ethers v6 is available on window
-    const { ethers } = window;
-
-    let provider, signer, userAddress;
-
-    async function connectWallet() {
-      if (!window.ethereum) {
-        alert("❌ Please install MetaMask!");
-        return;
-      }
-      try {
-        // ✅ v6 provider
-        provider = new ethers.BrowserProvider(window.ethereum);
-        signer = await provider.getSigner();
-        userAddress = await signer.getAddress();
-
-        document.getElementById("walletStatus").innerText =
-          `✅ Connected: ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
-
-        console.log("Wallet connected:", userAddress);
-
-        // enable Start Game button once connected
-        document.getElementById("startBtn").disabled = false;
-      } catch (err) {
-        console.error("Connection failed:", err);
-        alert("Connection failed: " + err.message);
-      }
-    }
-
-    document.getElementById("connectBtn").addEventListener("click", connectWallet);
-  </script>
-
-  <!-- ✅ Finally load your game logic -->
   <script src="script.js"></script>
 </body>
 </html>
