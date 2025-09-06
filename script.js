@@ -75,15 +75,7 @@ async function startGame() {
     return;
   }
   try {
-    // ✅ Check if already in game
-    let player = await contract.players(userAddress);
-    if (player.active) {
-      alert("⚠️ You already have an active game. Redirecting...");
-      window.location.href = "game.html";
-      return;
-    }
-
-    // ✅ Not active → start new game
+    // ✅ Always try starting a game, contract decides if allowed
     let tx = await contract.startGame({
       value: ethers.parseEther("1.0"),
       gasLimit: 300000n
@@ -96,7 +88,7 @@ async function startGame() {
     window.location.href = "game.html";
   } catch (err) {
     console.error("Start game failed:", err);
-    alert("Start game failed: " + err.message);
+    alert("Start game failed: " + (err.reason || err.message));
   }
 }
 
