@@ -22,6 +22,40 @@
 
   <!-- ✅ Load ethers.js first -->
   <script src="https://esm.sh/ethers@5.7.2/dist/ethers.min.js"></script>
+<!-- Load ethers UMD before your module -->
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+
+<!-- Firebase + MetaMask logic -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ethers v6 UMD is attached to window.ethers
+  const { ethers } = window;
+
+  // Now you can use it safely
+  let provider = null;
+  let signer = null;
+
+  async function connectWallet() {
+    if (!window.ethereum) {
+      alert("Please install MetaMask");
+      return;
+    }
+    try {
+      provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      signer = await provider.getSigner();
+      const wallet = accounts[0];
+      console.log("✅ Connected wallet:", wallet);
+    } catch (err) {
+      console.error("Wallet connect failed:", err);
+    }
+  }
+
+  document.getElementById("loginBtn").addEventListener("click", connectWallet);
+</script>
+
   <!-- ✅ Then load your script -->
   <script src="script.js"></script>
 </body>
