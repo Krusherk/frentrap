@@ -1,9 +1,10 @@
-const CONTRACT_ADDRESS = "0xF3E0229312a60101324572638D23eD4C16BAfb01";
+const CONTRACT_ADDRESS = "0xeAfdd1577b0f1Ec0Da793c23D98bC8C29774b1f3";
 const CONTRACT_ABI = [
   "function startGame() external payable",
   "function pickDoor(uint256 choice, uint256 numDoors) external",
   "function cashOut() external",
   "function withdraw(uint256 amount) external",
+  "function resetGame() external", // ✅ added
   "function players(address) view returns (uint256 stage, uint256 multiplier, bool active)",
   "function owner() view returns (address)"
 ];
@@ -16,18 +17,16 @@ window.addEventListener("load", async () => {
     await connectWallet();
   }
 
-  if (document.getElementById("connectBtn")) {
+  if (document.getElementById("connectBtn"))
     document.getElementById("connectBtn").onclick = connectWallet;
-  }
-  if (document.getElementById("startBtn")) {
+  if (document.getElementById("startBtn"))
     document.getElementById("startBtn").onclick = startGame;
-  }
-  if (document.getElementById("cashOut")) {
+  if (document.getElementById("cashOut"))
     document.getElementById("cashOut").onclick = cashOut;
-  }
-  if (document.getElementById("withdrawBtn")) {
+  if (document.getElementById("withdrawBtn"))
     document.getElementById("withdrawBtn").onclick = withdrawFunds;
-  }
+  if (document.getElementById("resetBtn")) // ✅ hook reset button
+    document.getElementById("resetBtn").onclick = resetGame;
 });
 
 async function connectWallet() {
@@ -51,9 +50,8 @@ async function connectWallet() {
       walletStatus.innerText = `✅ Connected: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
     }
 
-    if (document.getElementById("startBtn")) {
+    if (document.getElementById("startBtn"))
       document.getElementById("startBtn").disabled = false;
-    }
 
     if (userAddress.toLowerCase() === ownerAddress.toLowerCase()) {
       if (document.getElementById("ownerPanel")) {
@@ -75,7 +73,6 @@ async function startGame() {
     return;
   }
   try {
-    // 🔍 Check if already active
     let player = await contract.players(userAddress);
     if (player.active) {
       alert("⚠️ You already have an active game. Redirecting...");
@@ -83,7 +80,6 @@ async function startGame() {
       return;
     }
 
-    // ✅ Start new game
     let tx = await contract.startGame({
       value: ethers.parseEther("1.0"),
       gasLimit: 300000n
@@ -140,6 +136,18 @@ async function withdrawFunds() {
     loadHouseBalance();
   } catch (err) {
     alert("Error: " + err.message);
+  }
+}
+
+async function resetGame() {
+  try {
+    let tx = await contract.resetGame();
+    await tx.wait();
+    alert("🔄 Game reset!");
+    loadGame();
+  } catch (err) {
+    console.error(err);
+    alert("Reset failed: " + (err.reason || err.message));
   }
 }
 
