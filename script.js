@@ -77,18 +77,25 @@ async function startGame() {
     return;
   }
   try {
+    // Send transaction and open MetaMask
     let tx = await contract.startGame({
-      value: ethers.parseEther("1.0"), // v6: ethers.parseEther instead of ethers.utils
-      gasLimit: 300000n
+      value: ethers.utils.parseEther("1.0"), // 1 MON entry fee
+      gasLimit: 300000
     });
+
+    alert("📤 Transaction submitted. Please confirm in MetaMask...");
+
+    // Wait for confirmation
     await tx.wait();
+
     alert("🎮 Game started!");
-    window.location.href = "game.html";
+    window.location.href = "game.html"; // ✅ only redirect after confirm
   } catch (err) {
     console.error(err);
     alert("Start game failed: " + err.message);
   }
 }
+
 
 async function pickDoor(choice, numDoors) {
   try {
