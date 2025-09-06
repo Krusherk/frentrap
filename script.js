@@ -45,7 +45,19 @@ async function connectWallet() {
     userAddress = await signer.getAddress();
 
     contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-    ownerAddress = await contract.owner();
+
+    // ✅ Safe owner() check
+    try {
+      ownerAddress = await contract.owner();
+      if (userAddress.toLowerCase() === ownerAddress.toLowerCase()) {
+        if (document.getElementById("ownerPanel")) {
+          document.getElementById("ownerPanel").style.display = "block";
+          loadHouseBalance();
+        }
+      }
+    } catch (err) {
+      console.warn("⚠️ Owner function not available or failed:", err.message);
+    }
 
     localStorage.setItem("connected", "true");
     localStorage.setItem("userAddress", userAddress);
@@ -57,13 +69,6 @@ async function connectWallet() {
 
     if (document.getElementById("startBtn"))
       document.getElementById("startBtn").disabled = false;
-
-    if (userAddress.toLowerCase() === ownerAddress.toLowerCase()) {
-      if (document.getElementById("ownerPanel")) {
-        document.getElementById("ownerPanel").style.display = "block";
-        loadHouseBalance();
-      }
-    }
 
     loadGame();
   } catch (err) {
@@ -110,8 +115,6 @@ async function pickDoor(choice, numDoors) {
     await tx.wait();
 
     alert("🚪 Safe! Proceeding...");
-
-    // ✅ Reload game state after tx confirmation
     await loadGame();
   } catch (err) {
     console.log(err);
@@ -192,7 +195,6 @@ async function loadGame() {
       if (document.getElementById("claimBtn"))
         document.getElementById("claimBtn").style.display = "inline-block";
 
-      // ✅ Render doors based on the actual stage from contract
       renderDoors(Number(player.stage));
     } else {
       if (document.getElementById("stage"))
@@ -236,7 +238,7 @@ function renderDoors(stage) {
       door.classList.add("shake");
       setTimeout(() => door.classList.remove("shake"), 500);
 
-      await pickDoor(i, numDoors); // contract decides trap vs safe
+      await pickDoor(i, numDoors);
     };
 
     doorsContainer.appendChild(door);
