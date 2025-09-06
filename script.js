@@ -4,7 +4,7 @@ const CONTRACT_ABI = [
   "function pickDoor(uint256 choice, uint256 numDoors) external",
   "function cashOut() external",
   "function withdraw(uint256 amount) external",
-  "function resetGame() external", // ✅ added
+  "function resetGame() external", 
   "function players(address) view returns (uint256 stage, uint256 multiplier, bool active)",
   "function owner() view returns (address)"
 ];
@@ -25,8 +25,10 @@ window.addEventListener("load", async () => {
     document.getElementById("cashOut").onclick = cashOut;
   if (document.getElementById("withdrawBtn"))
     document.getElementById("withdrawBtn").onclick = withdrawFunds;
-  if (document.getElementById("resetBtn")) // ✅ hook reset button
+  if (document.getElementById("resetBtn"))
     document.getElementById("resetBtn").onclick = resetGame;
+  if (document.getElementById("claimBtn"))
+    document.getElementById("claimBtn").onclick = cashOut; // claim button = cashOut
 });
 
 async function connectWallet() {
@@ -101,19 +103,12 @@ async function pickDoor(choice, numDoors) {
     let tx = await contract.pickDoor(choice, numDoors);
     await tx.wait();
 
-    alert("🚪 Door picked!");
+    alert("🚪 Safe! Proceeding...");
     loadGame();
   } catch (err) {
     console.log(err);
-
-    const doors = document.querySelectorAll(".door");
-    if (doors[choice]) {
-      doors[choice].classList.add("shake");
-      setTimeout(() => doors[choice].classList.remove("shake"), 500);
-    }
-
-    alert("💥 Trap! You lost this round. Redirecting to homepage...");
-    window.location.href = "index.html"; // ✅ redirect after loss
+    alert("💥 Trap! Game Over. Redirecting to homepage...");
+    window.location.href = "index.html";
   }
 }
 
@@ -122,6 +117,12 @@ async function cashOut() {
     let tx = await contract.cashOut();
     await tx.wait();
     alert("💰 Cashed out winnings!");
+
+    // hide doors after cashout
+    const doors = document.getElementById("doors");
+    if (doors) doors.innerHTML = "";
+    if (document.getElementById("claimBtn"))
+      document.getElementById("claimBtn").style.display = "none";
     loadGame();
   } catch (err) {
     alert("Error: " + err.message);
@@ -145,8 +146,6 @@ async function resetGame() {
     let tx = await contract.resetGame();
     await tx.wait();
     alert("🔄 Game reset!");
-
-    // ✅ Redirect to homepage after reset
     window.location.href = "index.html";
   } catch (err) {
     console.error(err);
@@ -174,8 +173,15 @@ async function loadGame() {
         document.getElementById("multiplier").innerText = (player.multiplier / 10).toString() + "x";
       if (document.getElementById("winnings"))
         document.getElementById("winnings").innerText = (1 * player.multiplier / 10) + " MON";
-      if (document.getElementById("cashOut"))
-        document.getElementById("cashOut").style.display = "inline-block";
+
+      // show claim button only after stage >= 2
+      if (document.getElementById("claimBtn")) {
+        if (player.stage >= 2) {
+          document.getElementById("claimBtn").style.display = "inline-block";
+        } else {
+          document.getElementById("claimBtn").style.display = "none";
+        }
+      }
 
       renderDoors(player.stage);
     } else {
@@ -186,6 +192,8 @@ async function loadGame() {
       if (doors) doors.innerHTML = "";
       if (document.getElementById("cashOut"))
         document.getElementById("cashOut").style.display = "none";
+      if (document.getElementById("claimBtn"))
+        document.getElementById("claimBtn").style.display = "none";
     }
   } catch (err) {
     console.log("Load game error:", err.message);
@@ -208,11 +216,9 @@ function renderDoors(stage) {
     door.setAttribute("data-num", i + 1);
 
     door.onclick = async () => {
-      // disable all doors after one is clicked
       const allDoors = document.querySelectorAll(".door");
-      allDoors.forEach(d => d.style.pointerEvents = "none");
+      allDoors.forEach(d => (d.style.pointerEvents = "none")); // disable others
 
-      // only clicked door shakes
       door.classList.add("shake");
       setTimeout(() => door.classList.remove("shake"), 500);
 
@@ -220,7 +226,6 @@ function renderDoors(stage) {
         alert("💥 Oh no! That was the trap door. Game Over.");
         await resetGame();
       } else {
-        alert("🎉 Safe! Proceeding to the next stage...");
         await pickDoor(i, numDoors);
       }
     };
@@ -229,11 +234,7 @@ function renderDoors(stage) {
   }
 }
 
+// Initial door render for stage 1
 window.addEventListener("DOMContentLoaded", () => {
-  const doorContainer = document.getElementById("doors");
-  if (!doorContainer) return;
-
-  // Instead of hardcoding 5, use the same logic as renderDoors
-  renderDoors(1); // default stage = 1 (shows doors)
+  renderDoors(1);
 });
-
