@@ -1,4 +1,3 @@
-
 const CONTRACT_ADDRESS = "0xF3E0229312a60101324572638D23eD4C16BAfb01";
 const CONTRACT_ABI = [
   "function startGame() external payable",
@@ -75,7 +74,16 @@ async function startGame() {
     alert("⚠️ Please connect your wallet first!");
     return;
   }
+
   try {
+    // ✅ check if already active
+    let player = await contract.players(userAddress);
+    if (player.active) {
+      alert("⚠️ You already have an active game. Redirecting...");
+      window.location.href = "game.html";
+      return;
+    }
+
     let tx = await contract.startGame({
       value: ethers.parseEther("1.0"),
       gasLimit: 300000n
@@ -138,8 +146,10 @@ async function withdrawFunds() {
 async function loadHouseBalance() {
   if (!provider) return;
   let balance = await provider.getBalance(CONTRACT_ADDRESS);
-  document.getElementById("houseBalance").innerText =
-    ethers.formatEther(balance) + " MON";
+  const el = document.getElementById("houseBalance");
+  if (el) {
+    el.innerText = ethers.formatEther(balance) + " MON";
+  }
 }
 
 async function loadGame() {
@@ -148,20 +158,29 @@ async function loadGame() {
   try {
     let player = await contract.players(userAddress);
 
+    const stageEl = document.getElementById("stage");
+    const multiplierEl = document.getElementById("multiplier");
+    const winningsEl = document.getElementById("winnings");
+    const cashOutBtn = document.getElementById("cashOut");
+    const doorsEl = document.getElementById("doors");
+
+    // ✅ skip if we are not on the game page
+    if (!stageEl || !multiplierEl || !winningsEl || !cashOutBtn || !doorsEl) {
+      return;
+    }
+
     if (player.active) {
-      document.getElementById("stage").innerText = player.stage.toString();
-      document.getElementById("multiplier").innerText =
-        (player.multiplier / 10).toString() + "x";
-      document.getElementById("winnings").innerText =
-        (1 * player.multiplier / 10) + " MON";
-      document.getElementById("cashOut").style.display = "inline-block";
+      stageEl.innerText = player.stage.toString();
+      multiplierEl.innerText = (player.multiplier / 10).toString() + "x";
+      winningsEl.innerText = (1 * player.multiplier / 10) + " MON";
+      cashOutBtn.style.display = "inline-block";
       renderDoors(player.stage);
     } else {
-      document.getElementById("stage").innerText = "-";
-      document.getElementById("multiplier").innerText = "-";
-      document.getElementById("winnings").innerText = "-";
-      document.getElementById("doors").innerHTML = "";
-      document.getElementById("cashOut").style.display = "none";
+      stageEl.innerText = "-";
+      multiplierEl.innerText = "-";
+      winningsEl.innerText = "-";
+      doorsEl.innerHTML = "";
+      cashOutBtn.style.display = "none";
     }
   } catch (err) {
     console.log("Load game error:", err.message);
@@ -193,21 +212,19 @@ function renderDoors(stage) {
 
 window.addEventListener("DOMContentLoaded", () => {
   const doorContainer = document.getElementById("doors");
+  if (!doorContainer) return; // ✅ prevent homepage crash
 
-  // Number of doors (you can make this dynamic if needed)
   const numDoors = 5;
-
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.className = "door";
-    door.style.backgroundImage = "url('pindoor.png')"; // ✅ Make sure this file exists in same folder
-    door.dataset.index = i; // so you can track which door was clicked
+    door.style.backgroundImage = "url('pindoor.png')";
+    door.dataset.index = i;
 
-    // Example click handler
     door.addEventListener("click", () => {
-      document.getElementById("status").textContent = `You picked door #${i + 1}`;
+      const statusEl = document.getElementById("status");
+      if (statusEl) statusEl.textContent = `You picked door #${i + 1}`;
       door.classList.add("shake");
-
       setTimeout(() => door.classList.remove("shake"), 300);
     });
 
