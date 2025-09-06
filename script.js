@@ -4,7 +4,7 @@ const CONTRACT_ABI = [
   "function pickDoor(uint256 choice, uint256 numDoors) external",
   "function cashOut() external",
   "function withdraw(uint256 amount) external",
-  "function resetGame() external", 
+  "function resetGame() external",
   "function players(address) view returns (uint256 stage, uint256 multiplier, bool active)",
   "function owner() view returns (address)"
 ];
@@ -104,7 +104,7 @@ async function pickDoor(choice, numDoors) {
     await tx.wait();
 
     alert("🚪 Safe! Proceeding...");
-    loadGame();
+    await loadGame();
   } catch (err) {
     console.log(err);
     alert("💥 Trap! Game Over. Redirecting to homepage...");
@@ -118,12 +118,12 @@ async function cashOut() {
     await tx.wait();
     alert("💰 Cashed out winnings!");
 
-    // hide doors after cashout
     const doors = document.getElementById("doors");
     if (doors) doors.innerHTML = "";
     if (document.getElementById("claimBtn"))
       document.getElementById("claimBtn").style.display = "none";
-    loadGame();
+
+    await loadGame();
   } catch (err) {
     alert("Error: " + err.message);
   }
@@ -168,28 +168,26 @@ async function loadGame() {
 
     if (player.active) {
       if (document.getElementById("stage"))
-        document.getElementById("stage").innerText = player.stage.toString();
+        document.getElementById("stage").innerText = Number(player.stage).toString();
       if (document.getElementById("multiplier"))
         document.getElementById("multiplier").innerText =
-          (player.multiplier / 10).toString() + "x";
+          (Number(player.multiplier) / 10).toString() + "x";
       if (document.getElementById("winnings"))
         document.getElementById("winnings").innerText =
-          (1 * player.multiplier / 10) + " MON";
+          (Number(player.multiplier) / 10) + " MON";
 
-      // always show cashOut
       if (document.getElementById("cashOut"))
         document.getElementById("cashOut").style.display = "inline-block";
 
-      // show claim button only after stage >= 2
       if (document.getElementById("claimBtn")) {
-        if (player.stage >= 2) {
+        if (Number(player.stage) >= 2) {
           document.getElementById("claimBtn").style.display = "inline-block";
         } else {
           document.getElementById("claimBtn").style.display = "none";
         }
       }
 
-      renderDoors(player.stage);
+      renderDoors(Number(player.stage));
     } else {
       if (document.getElementById("stage"))
         document.getElementById("stage").innerText = "-";
@@ -219,12 +217,6 @@ function renderDoors(stage) {
 
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
 
-  // 🎯 pick 3 unique traps
-  let traps = new Set();
-  while (traps.size < 3) {
-    traps.add(Math.floor(Math.random() * numDoors));
-  }
-
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
@@ -232,21 +224,13 @@ function renderDoors(stage) {
     door.setAttribute("data-num", i + 1);
 
     door.onclick = async () => {
-      // disable just once until tx finishes
       const allDoors = document.querySelectorAll(".door");
       allDoors.forEach(d => (d.style.pointerEvents = "none"));
 
       door.classList.add("shake");
       setTimeout(() => door.classList.remove("shake"), 500);
 
-      if (traps.has(i)) {
-        alert("💥 Oh no! That was a trap door. Game Over.");
-        await resetGame();
-      } else {
-        alert("🎉 Safe! Proceeding to the next stage...");
-        await pickDoor(i, numDoors);
-        await loadGame(); // ✅ refresh UI + show claim button
-      }
+      await pickDoor(i, numDoors); // contract decides trap vs safe
     };
 
     doorsContainer.appendChild(door);
@@ -256,7 +240,5 @@ function renderDoors(stage) {
 window.addEventListener("DOMContentLoaded", () => {
   const doorContainer = document.getElementById("doors");
   if (!doorContainer) return;
-
-  // Instead of hardcoding 5, use the same logic as renderDoors
-  renderDoors(1); // default stage = 1 (shows doors)
+  renderDoors(1);
 });
