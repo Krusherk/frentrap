@@ -199,13 +199,9 @@ function renderDoors(stage) {
   doorsContainer.innerHTML = "";
 
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
-  let traps = [];
 
-  // Pick 3 unique random trap doors
-  while (traps.length < 3 && traps.length < numDoors) {
-    let r = Math.floor(Math.random() * numDoors);
-    if (!traps.includes(r)) traps.push(r);
-  }
+  // Randomly choose 1 trap door
+  const trap = Math.floor(Math.random() * numDoors);
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
@@ -213,15 +209,22 @@ function renderDoors(stage) {
     door.setAttribute("data-num", i + 1);
 
     door.onclick = async () => {
-      // Add shake animation when clicked
+      // Disable all doors after one is picked
+      const allDoors = document.querySelectorAll(".door");
+      allDoors.forEach(d => d.style.pointerEvents = "none");
+
+      // Shake animation only for the chosen door
       door.classList.add("shake");
       setTimeout(() => door.classList.remove("shake"), 500);
 
-      if (traps.includes(i)) {
-        alert("💥 Trap! You lost this round.");
-        await resetGame(); // end game on-chain
+      if (i === trap) {
+        // 🚪 Trap chosen → Game over
+        alert("💥 Oh no! That was the trap door. Game Over.");
+        await resetGame();
       } else {
-        await pickDoor(i, numDoors); // safe → continue on-chain
+        // ✅ Safe → continue game onchain
+        alert("🎉 Safe! Proceeding to the next stage...");
+        await pickDoor(i, numDoors);
       }
     };
 
