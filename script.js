@@ -144,7 +144,9 @@ async function resetGame() {
     let tx = await contract.resetGame();
     await tx.wait();
     alert("🔄 Game reset!");
-    loadGame();
+
+    // ✅ Redirect to homepage after reset
+    window.location.href = "index.html";
   } catch (err) {
     console.error(err);
     alert("Reset failed: " + (err.reason || err.message));
