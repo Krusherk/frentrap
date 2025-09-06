@@ -75,14 +75,12 @@ async function startGame() {
     return;
   }
   try {
-    // ✅ ethers v6 syntax
     let tx = await contract.startGame({
-      value: ethers.parseEther("1.0"), // entry fee
+      value: ethers.parseEther("1.0"),
       gasLimit: 300000n
     });
 
     alert("📤 Transaction submitted. Please confirm in MetaMask...");
-
     await tx.wait();
 
     alert("🎮 Game started!");
@@ -103,7 +101,6 @@ async function pickDoor(choice, numDoors) {
   } catch (err) {
     console.log(err);
 
-    // 🔥 Shake animation if trap
     const doors = document.querySelectorAll(".door");
     if (doors[choice]) {
       doors[choice].classList.add("shake");
@@ -175,13 +172,12 @@ function renderDoors(stage) {
   if (!doorsContainer) return;
 
   doorsContainer.innerHTML = "";
-  let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
+  let numDoors = Math.floor(Math.random() * 4) + 5;
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
 
-    // ✅ Use PNG door background
     door.style.backgroundImage = "url('pindoor.png')";
     door.style.backgroundSize = "cover";
     door.style.backgroundPosition = "center";
