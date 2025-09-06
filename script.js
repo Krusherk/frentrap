@@ -10,6 +10,9 @@ const CONTRACT_ABI = [
 
 let provider, signer, contract, userAddress, ownerAddress;
 
+// ✅ Use ethers v6
+const { ethers } = window;
+
 window.addEventListener("load", async () => {
   if (localStorage.getItem("connected") === "true") {
     await connectWallet();
@@ -35,9 +38,8 @@ async function connectWallet() {
     return;
   }
   try {
-    await ethereum.request({ method: "eth_requestAccounts" });
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
+    provider = new ethers.BrowserProvider(window.ethereum);
+    signer = await provider.getSigner();
     userAddress = await signer.getAddress();
 
     contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
@@ -46,7 +48,6 @@ async function connectWallet() {
     localStorage.setItem("connected", "true");
     localStorage.setItem("userAddress", userAddress);
 
-    // ✅ Update wallet text
     const walletStatus = document.getElementById("walletStatus");
     if (walletStatus) {
       walletStatus.innerText = `✅ Connected: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
@@ -77,8 +78,8 @@ async function startGame() {
   }
   try {
     let tx = await contract.startGame({
-      value: ethers.utils.parseEther("1.0"), // 1 MON entry fee
-      gasLimit: 300000
+      value: ethers.parseEther("1.0"), // v6: ethers.parseEther instead of ethers.utils
+      gasLimit: 300000n
     });
     await tx.wait();
     alert("🎮 Game started!");
@@ -127,7 +128,7 @@ async function loadHouseBalance() {
   if (!provider) return;
   let balance = await provider.getBalance(CONTRACT_ADDRESS);
   document.getElementById("houseBalance").innerText =
-    ethers.utils.formatEther(balance) + " MON";
+    ethers.formatEther(balance) + " MON";
 }
 
 async function loadGame() {
