@@ -172,17 +172,20 @@ function renderDoors(stage) {
   if (!doorsContainer) return;
 
   doorsContainer.innerHTML = "";
+
+  // Dynamic door count (5–8 based on stage)
   let numDoors = Math.floor(Math.random() * 4) + 5;
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
 
-    door.style.backgroundImage = "url('pindoor.png')";
-    door.style.backgroundSize = "cover";
-    door.style.backgroundPosition = "center";
+    // Add door number overlay
+    door.setAttribute("data-num", i + 1);
 
+    // Click handler
     door.onclick = () => pickDoor(i, numDoors);
+
     doorsContainer.appendChild(door);
   }
 }
