@@ -4,6 +4,39 @@
   <meta charset="UTF-8">
   <title>Pick-a-Door - Game</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      text-align: center;
+      background: #1a001f;
+      color: white;
+      font-family: 'Press Start 2P', cursive;
+    }
+    .door {
+      display: inline-block;
+      width: 100px;
+      height: 160px;
+      margin: 10px;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+      border: 2px solid #fff;
+      border-radius: 8px;
+      transition: transform 0.2s ease;
+    }
+    .door:hover {
+      transform: scale(1.05);
+    }
+    .shake {
+      animation: shake 0.3s;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+  </style>
 </head>
 <body>
   <h1>🚪 Pick-a-Door</h1>
@@ -14,6 +47,7 @@
     <p>Potential Winnings: <span id="winnings">-</span></p>
   </div>
 
+  <!-- ✅ Doors render here -->
   <div id="doors"></div>
 
   <button id="cashOut" style="display:none;">💰 Cash Out</button>
@@ -21,7 +55,7 @@
   <p id="walletStatus">🔌 Not connected</p>
   <p id="status"></p>
 
-  <!-- ✅ Load ethers v6 -->
+  <!-- ethers.js v6 -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
   <script src="script.js"></script>
 </body>
