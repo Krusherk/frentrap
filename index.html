@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pick-a-Door</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>🚪 Pick-a-Door Game</h1>
+
+  <button id="connectBtn">🔗 Connect Wallet</button>
+  <button id="startBtn" disabled>🎮 Start Game (1 MON)</button>
+
+  <div id="ownerPanel" style="display:none; margin-top:30px;">
+    <h2>🏦 House Panel</h2>
+    <p>House Balance: <span id="houseBalance">0</span></p>
+    <button id="withdrawBtn">Withdraw</button>
+  </div>
+
+  <p id="status"></p>
+</body>
+</html>
