@@ -9,8 +9,6 @@ const CONTRACT_ABI = [
 ];
 
 let provider, signer, contract, userAddress, ownerAddress;
-
-// ✅ Use ethers v6
 const { ethers } = window;
 
 window.addEventListener("load", async () => {
@@ -77,44 +75,39 @@ async function startGame() {
     return;
   }
   try {
-    // Send transaction and open MetaMask
+    // ✅ ethers v6 syntax
     let tx = await contract.startGame({
-      value: ethers.utils.parseEther("1.0"), // 1 MON entry fee
-      gasLimit: 300000
+      value: ethers.parseEther("1.0"), // entry fee
+      gasLimit: 300000n
     });
 
     alert("📤 Transaction submitted. Please confirm in MetaMask...");
 
-    // Wait for confirmation
     await tx.wait();
 
     alert("🎮 Game started!");
-    window.location.href = "game.html"; // ✅ only redirect after confirm
+    window.location.href = "game.html";
   } catch (err) {
-    console.error(err);
+    console.error("Start game failed:", err);
     alert("Start game failed: " + err.message);
   }
 }
-
 
 async function pickDoor(choice, numDoors) {
   try {
     let tx = await contract.pickDoor(choice, numDoors);
     await tx.wait();
 
-    // Assume backend tells us result later
     alert("🚪 Door picked!");
     loadGame();
   } catch (err) {
     console.log(err);
 
-    // 🔥 Shake animation on the clicked door
+    // 🔥 Shake animation if trap
     const doors = document.querySelectorAll(".door");
     if (doors[choice]) {
       doors[choice].classList.add("shake");
-      setTimeout(() => {
-        doors[choice].classList.remove("shake");
-      }, 500);
+      setTimeout(() => doors[choice].classList.remove("shake"), 500);
     }
 
     alert("💥 Trap! You lost this round.");
@@ -158,23 +151,19 @@ async function loadGame() {
     let player = await contract.players(userAddress);
 
     if (player.active) {
-      if (document.getElementById("stage")) {
-        document.getElementById("stage").innerText = player.stage.toString();
-        document.getElementById("multiplier").innerText =
-          (player.multiplier / 10).toString() + "x";
-        document.getElementById("winnings").innerText =
-          (1 * player.multiplier / 10) + " MON";
-        document.getElementById("cashOut").style.display = "inline-block";
-        renderDoors(player.stage);
-      }
+      document.getElementById("stage").innerText = player.stage.toString();
+      document.getElementById("multiplier").innerText =
+        (player.multiplier / 10).toString() + "x";
+      document.getElementById("winnings").innerText =
+        (1 * player.multiplier / 10) + " MON";
+      document.getElementById("cashOut").style.display = "inline-block";
+      renderDoors(player.stage);
     } else {
-      if (document.getElementById("stage")) {
-        document.getElementById("stage").innerText = "-";
-        document.getElementById("multiplier").innerText = "-";
-        document.getElementById("winnings").innerText = "-";
-        document.getElementById("doors").innerHTML = "";
-        document.getElementById("cashOut").style.display = "none";
-      }
+      document.getElementById("stage").innerText = "-";
+      document.getElementById("multiplier").innerText = "-";
+      document.getElementById("winnings").innerText = "-";
+      document.getElementById("doors").innerHTML = "";
+      document.getElementById("cashOut").style.display = "none";
     }
   } catch (err) {
     console.log("Load game error:", err.message);
@@ -191,7 +180,12 @@ function renderDoors(stage) {
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
-    door.innerText = i + 1;
+
+    // ✅ Use PNG door background
+    door.style.backgroundImage = "url('pindoor.png')";
+    door.style.backgroundSize = "cover";
+    door.style.backgroundPosition = "center";
+
     door.onclick = () => pickDoor(i, numDoors);
     doorsContainer.appendChild(door);
   }
