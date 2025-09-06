@@ -9,7 +9,6 @@ const CONTRACT_ABI = [
 ];
 
 let provider, signer, contract, userAddress, ownerAddress;
-let traps = [];
 const { ethers } = window;
 
 window.addEventListener("load", async () => {
@@ -94,26 +93,21 @@ async function startGame() {
 
 async function pickDoor(choice, numDoors) {
   try {
-    // if trap
-    if (traps.includes(choice)) {
-      const doors = document.querySelectorAll(".door");
-      if (doors[choice]) {
-        doors[choice].classList.add("shake");
-        setTimeout(() => doors[choice].classList.remove("shake"), 500);
-      }
-      alert("💥 Trap! You lost your MON.");
-      return; // don’t call contract, game ends
-    }
-
-    // safe door → call contract
     let tx = await contract.pickDoor(choice, numDoors);
     await tx.wait();
 
-    alert("🎉 Safe door picked! Advancing stage...");
+    alert("🚪 Door picked!");
     loadGame();
   } catch (err) {
     console.log(err);
-    alert("Error: " + err.message);
+
+    const doors = document.querySelectorAll(".door");
+    if (doors[choice]) {
+      doors[choice].classList.add("shake");
+      setTimeout(() => doors[choice].classList.remove("shake"), 500);
+    }
+
+    alert("💥 Trap! You lost this round.");
   }
 }
 
@@ -179,13 +173,13 @@ function renderDoors(stage) {
 
   doorsContainer.innerHTML = "";
 
-  let numDoors = 5; // fixed number for now
-  traps = [];
+  // Dynamic door count (5–8 based on stage)
+  let numDoors = Math.floor(Math.random() * 4) + 5;
 
-  // pick 2 random traps
-  while (traps.length < 2) {
-    let rand = Math.floor(Math.random() * numDoors);
-    if (!traps.includes(rand)) traps.push(rand);
+  // Pick 2 random traps
+  let trapIndexes = new Set();
+  while (trapIndexes.size < 2) {
+    trapIndexes.add(Math.floor(Math.random() * numDoors));
   }
 
   for (let i = 0; i < numDoors; i++) {
@@ -194,8 +188,19 @@ function renderDoors(stage) {
     door.style.backgroundImage = "url('pindoor.png')";
     door.style.backgroundSize = "cover";
     door.style.backgroundPosition = "center";
+    door.setAttribute("data-num", i + 1);
 
-    door.onclick = () => pickDoor(i, numDoors);
+    door.onclick = async () => {
+      if (trapIndexes.has(i)) {
+        // Trap picked
+        door.classList.add("shake");
+        setTimeout(() => door.classList.remove("shake"), 500);
+        alert("💥 Trap! You lost your MON.");
+      } else {
+        // Safe → on-chain pick
+        await pickDoor(i, numDoors);
+      }
+    };
 
     doorsContainer.appendChild(door);
   }
