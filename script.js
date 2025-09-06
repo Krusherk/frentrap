@@ -219,7 +219,7 @@ function renderDoors(stage) {
 
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
 
-  // 🎯 Pick 3 unique traps
+  // 🎯 pick 3 unique traps
   let traps = new Set();
   while (traps.size < 3) {
     traps.add(Math.floor(Math.random() * numDoors));
@@ -232,7 +232,7 @@ function renderDoors(stage) {
     door.setAttribute("data-num", i + 1);
 
     door.onclick = async () => {
-      // disable doors after click
+      // disable just once until tx finishes
       const allDoors = document.querySelectorAll(".door");
       allDoors.forEach(d => (d.style.pointerEvents = "none"));
 
@@ -243,9 +243,9 @@ function renderDoors(stage) {
         alert("💥 Oh no! That was a trap door. Game Over.");
         await resetGame();
       } else {
-        alert(`🎉 Safe! You cleared Stage ${stage}.`);
-        await pickDoor(i, numDoors);   // update stage on-chain
-        await loadGame();              // refresh UI
+        alert("🎉 Safe! Proceeding to the next stage...");
+        await pickDoor(i, numDoors);
+        await loadGame(); // ✅ refresh UI + show claim button
       }
     };
 
@@ -253,9 +253,10 @@ function renderDoors(stage) {
   }
 }
 
-// Initial render handled by loadGame() after wallet connect
 window.addEventListener("DOMContentLoaded", () => {
-  if (localStorage.getItem("connected") === "true") {
-    connectWallet();
-  }
+  const doorContainer = document.getElementById("doors");
+  if (!doorContainer) return;
+
+  // Instead of hardcoding 5, use the same logic as renderDoors
+  renderDoors(1); // default stage = 1 (shows doors)
 });
