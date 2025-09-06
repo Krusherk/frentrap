@@ -34,41 +34,58 @@ async function connectWallet() {
     alert("❌ Please install MetaMask!");
     return;
   }
-  await ethereum.request({ method: "eth_requestAccounts" });
-  provider = new ethers.providers.Web3Provider(window.ethereum);
-  signer = provider.getSigner();
-  userAddress = await signer.getAddress();
+  try {
+    await ethereum.request({ method: "eth_requestAccounts" });
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    userAddress = await signer.getAddress();
 
-  contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-  ownerAddress = await contract.owner();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    ownerAddress = await contract.owner();
 
-  localStorage.setItem("connected", "true");
-  localStorage.setItem("userAddress", userAddress);
+    localStorage.setItem("connected", "true");
+    localStorage.setItem("userAddress", userAddress);
 
-  alert("✅ Wallet connected: " + userAddress);
-
-  if (document.getElementById("startBtn")) {
-    document.getElementById("startBtn").disabled = false;
-  }
-
-  if (userAddress.toLowerCase() === ownerAddress.toLowerCase()) {
-    if (document.getElementById("ownerPanel")) {
-      document.getElementById("ownerPanel").style.display = "block";
-      loadHouseBalance();
+    // ✅ Update wallet text
+    const walletStatus = document.getElementById("walletStatus");
+    if (walletStatus) {
+      walletStatus.innerText = `✅ Connected: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
     }
-  }
 
-  loadGame();
+    if (document.getElementById("startBtn")) {
+      document.getElementById("startBtn").disabled = false;
+    }
+
+    if (userAddress.toLowerCase() === ownerAddress.toLowerCase()) {
+      if (document.getElementById("ownerPanel")) {
+        document.getElementById("ownerPanel").style.display = "block";
+        loadHouseBalance();
+      }
+    }
+
+    loadGame();
+  } catch (err) {
+    console.error(err);
+    alert("Connection failed: " + err.message);
+  }
 }
 
 async function startGame() {
+  if (!contract) {
+    alert("⚠️ Please connect your wallet first!");
+    return;
+  }
   try {
-    let tx = await contract.startGame({ value: ethers.utils.parseEther("1") });
+    let tx = await contract.startGame({
+      value: ethers.utils.parseEther("1.0"), // 1 MON entry fee
+      gasLimit: 300000
+    });
     await tx.wait();
     alert("🎮 Game started!");
     window.location.href = "game.html";
   } catch (err) {
-    alert("Error: " + err.message);
+    console.error(err);
+    alert("Start game failed: " + err.message);
   }
 }
 
