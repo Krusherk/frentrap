@@ -9,6 +9,7 @@ const CONTRACT_ABI = [
 ];
 
 let provider, signer, contract, userAddress, ownerAddress;
+let traps = [];
 const { ethers } = window;
 
 window.addEventListener("load", async () => {
@@ -93,21 +94,26 @@ async function startGame() {
 
 async function pickDoor(choice, numDoors) {
   try {
+    // if trap
+    if (traps.includes(choice)) {
+      const doors = document.querySelectorAll(".door");
+      if (doors[choice]) {
+        doors[choice].classList.add("shake");
+        setTimeout(() => doors[choice].classList.remove("shake"), 500);
+      }
+      alert("💥 Trap! You lost your MON.");
+      return; // don’t call contract, game ends
+    }
+
+    // safe door → call contract
     let tx = await contract.pickDoor(choice, numDoors);
     await tx.wait();
 
-    alert("🚪 Door picked!");
+    alert("🎉 Safe door picked! Advancing stage...");
     loadGame();
   } catch (err) {
     console.log(err);
-
-    const doors = document.querySelectorAll(".door");
-    if (doors[choice]) {
-      doors[choice].classList.add("shake");
-      setTimeout(() => doors[choice].classList.remove("shake"), 500);
-    }
-
-    alert("💥 Trap! You lost this round.");
+    alert("Error: " + err.message);
   }
 }
 
@@ -173,43 +179,24 @@ function renderDoors(stage) {
 
   doorsContainer.innerHTML = "";
 
-  // Dynamic door count (5–8 based on stage)
-  let numDoors = Math.floor(Math.random() * 4) + 5;
+  let numDoors = 5; // fixed number for now
+  traps = [];
+
+  // pick 2 random traps
+  while (traps.length < 2) {
+    let rand = Math.floor(Math.random() * numDoors);
+    if (!traps.includes(rand)) traps.push(rand);
+  }
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
+    door.style.backgroundImage = "url('pindoor.png')";
+    door.style.backgroundSize = "cover";
+    door.style.backgroundPosition = "center";
 
-    // Add door number overlay
-    door.setAttribute("data-num", i + 1);
-
-    // Click handler
     door.onclick = () => pickDoor(i, numDoors);
 
     doorsContainer.appendChild(door);
   }
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  const doorContainer = document.getElementById("doors");
-
-  // Number of doors (you can make this dynamic if needed)
-  const numDoors = 5;
-
-  for (let i = 0; i < numDoors; i++) {
-    const door = document.createElement("div");
-    door.className = "door";
-    door.style.backgroundImage = "url('pindoor.png')"; // ✅ Make sure this file exists in same folder
-    door.dataset.index = i; // so you can track which door was clicked
-
-    // Example click handler
-    door.addEventListener("click", () => {
-      document.getElementById("status").textContent = `You picked door #${i + 1}`;
-      door.classList.add("shake");
-
-      setTimeout(() => door.classList.remove("shake"), 300);
-    });
-
-    doorContainer.appendChild(door);
-  }
-});
