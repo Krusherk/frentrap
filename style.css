@@ -1,0 +1,75 @@
+/* Google Pixel Font */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #111;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1, h2 {
+  color: #f9d423;
+  text-shadow: 2px 2px 0px #000;
+}
+
+button {
+  background: #222;
+  color: #f9d423;
+  border: 3px solid #f9d423;
+  padding: 12px 20px;
+  margin: 10px;
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0px #000;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #f9d423;
+  color: #111;
+  transform: translateY(-2px);
+}
+
+#doors {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.door {
+  width: 100px;
+  height: 150px;
+  margin: 10px;
+  background: linear-gradient(to bottom, #8b4513, #5a2e0e);
+  border: 3px solid #f9d423;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px #000;
+  transition: transform 0.2s, background 0.3s;
+}
+
+.door:hover {
+  transform: scale(1.05);
+  background: linear-gradient(to bottom, #a0522d, #6b3b17);
+}
+
+#status {
+  margin-top: 20px;
+  color: #0f0;
+  text-shadow: 1px 1px 0px #000;
+}
