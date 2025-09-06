@@ -46,18 +46,8 @@ async function connectWallet() {
 
     contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-    // ✅ Safe owner() check
-    try {
-      ownerAddress = await contract.owner();
-      if (userAddress.toLowerCase() === ownerAddress.toLowerCase()) {
-        if (document.getElementById("ownerPanel")) {
-          document.getElementById("ownerPanel").style.display = "block";
-          loadHouseBalance();
-        }
-      }
-    } catch (err) {
-      console.warn("⚠️ Owner function not available or failed:", err.message);
-    }
+    // ✅ Remove owner() call for normal users
+    // If you really need owner-only controls, check them in Solidity instead
 
     localStorage.setItem("connected", "true");
     localStorage.setItem("userAddress", userAddress);
@@ -69,6 +59,15 @@ async function connectWallet() {
 
     if (document.getElementById("startBtn"))
       document.getElementById("startBtn").disabled = false;
+
+    // ✅ Optional: Only show owner panel if *you* manually set your address
+    const MY_ADDRESS = "0xaF18599A30d6462B6a99e6EEA71b13e3971f02d5"; 
+    if (userAddress.toLowerCase() === MY_ADDRESS.toLowerCase()) {
+      if (document.getElementById("ownerPanel")) {
+        document.getElementById("ownerPanel").style.display = "block";
+        loadHouseBalance();
+      }
+    }
 
     loadGame();
   } catch (err) {
