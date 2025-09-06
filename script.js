@@ -198,13 +198,35 @@ function renderDoors(stage) {
 
   doorsContainer.innerHTML = "";
 
-  let numDoors = Math.floor(Math.random() * 4) + 5;
+  let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
+  let traps = [];
+
+  // pick 3 unique random traps
+  while (traps.length < 3) {
+    let r = Math.floor(Math.random() * numDoors);
+    if (!traps.includes(r)) traps.push(r);
+  }
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
     door.setAttribute("data-num", i + 1);
-    door.onclick = () => pickDoor(i, numDoors);
+
+    // If it's a trap door, make it shake visually
+    if (traps.includes(i)) {
+      door.classList.add("shake");
+    }
+
+    door.onclick = async () => {
+      if (traps.includes(i)) {
+        alert("💥 You picked a TRAP door! Game over.");
+        await resetGame(); // end game on-chain
+        return;
+      } else {
+        await pickDoor(i, numDoors); // safe → call contract to continue
+      }
+    };
+
     doorsContainer.appendChild(door);
   }
 }
