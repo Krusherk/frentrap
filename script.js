@@ -29,6 +29,9 @@ window.addEventListener("load", async () => {
     document.getElementById("resetBtn").onclick = resetGame;
   if (document.getElementById("claimBtn"))
     document.getElementById("claimBtn").onclick = cashOut; // claim button = cashOut
+
+  // ✅ On page load, just check game state
+  loadGame();
 });
 
 async function connectWallet() {
@@ -107,6 +110,8 @@ async function pickDoor(choice, numDoors) {
     await tx.wait();
 
     alert("🚪 Safe! Proceeding...");
+
+    // ✅ Reload game state after tx confirmation
     await loadGame();
   } catch (err) {
     console.log(err);
@@ -184,11 +189,10 @@ async function loadGame() {
       if (document.getElementById("cashOut"))
         document.getElementById("cashOut").style.display = "inline-block";
 
-      // ✅ Always show claim button during active game
-      if (document.getElementById("claimBtn")) {
+      if (document.getElementById("claimBtn"))
         document.getElementById("claimBtn").style.display = "inline-block";
-      }
 
+      // ✅ Render doors based on the actual stage from contract
       renderDoors(Number(player.stage));
     } else {
       if (document.getElementById("stage"))
