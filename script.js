@@ -208,14 +208,11 @@ function renderDoors(stage) {
 
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
 
-  // 🎯 pick 2 unique traps
-  let trap1 = Math.floor(Math.random() * numDoors);
-  let trap2;
-  do {
-    trap2 = Math.floor(Math.random() * numDoors);
-  } while (trap2 === trap1);
-
-  const traps = new Set([trap1, trap2]);
+  // 🎯 pick 3 unique traps
+  let traps = new Set();
+  while (traps.size < 3) {
+    traps.add(Math.floor(Math.random() * numDoors));
+  }
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
@@ -224,8 +221,9 @@ function renderDoors(stage) {
     door.setAttribute("data-num", i + 1);
 
     door.onclick = async () => {
+      // disable just once until tx finishes
       const allDoors = document.querySelectorAll(".door");
-      allDoors.forEach(d => (d.style.pointerEvents = "none")); // disable others
+      allDoors.forEach(d => (d.style.pointerEvents = "none"));
 
       door.classList.add("shake");
       setTimeout(() => door.classList.remove("shake"), 500);
@@ -236,6 +234,7 @@ function renderDoors(stage) {
       } else {
         alert("🎉 Safe! Proceeding to the next stage...");
         await pickDoor(i, numDoors);
+        await loadGame(); // ✅ refresh UI + show claim button
       }
     };
 
