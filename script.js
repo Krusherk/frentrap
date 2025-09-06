@@ -1,3 +1,4 @@
+
 const CONTRACT_ADDRESS = "0xF3E0229312a60101324572638D23eD4C16BAfb01";
 const CONTRACT_ABI = [
   "function startGame() external payable",
