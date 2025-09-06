@@ -10,8 +10,11 @@ const CONTRACT_ABI = [
 
 let provider, signer, contract, userAddress, ownerAddress;
 
-// connect wallet
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
+  if (localStorage.getItem("connected") === "true") {
+    await connectWallet();
+  }
+
   if (document.getElementById("connectBtn")) {
     document.getElementById("connectBtn").onclick = connectWallet;
   }
@@ -38,6 +41,9 @@ async function connectWallet() {
 
   contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   ownerAddress = await contract.owner();
+
+  localStorage.setItem("connected", "true");
+  localStorage.setItem("userAddress", userAddress);
 
   alert("✅ Wallet connected: " + userAddress);
 
@@ -90,7 +96,6 @@ async function cashOut() {
 
 async function withdrawFunds() {
   try {
-    // withdraw all balance
     let balance = await provider.getBalance(CONTRACT_ADDRESS);
     let tx = await contract.withdraw(balance);
     await tx.wait();
@@ -109,20 +114,21 @@ async function loadHouseBalance() {
 }
 
 async function loadGame() {
-  if (!contract || !userAddress) return;
+  if (!contract) return;
 
   try {
     let player = await contract.players(userAddress);
 
     if (player.active) {
-      document.getElementById("stage").innerText = player.stage.toString();
-      document.getElementById("multiplier").innerText =
-        (player.multiplier / 10).toString() + "x";
-      document.getElementById("winnings").innerText =
-        (1 * player.multiplier / 10) + " MON";
-      document.getElementById("cashOut").style.display = "inline-block";
-
-      renderDoors(player.stage);
+      if (document.getElementById("stage")) {
+        document.getElementById("stage").innerText = player.stage.toString();
+        document.getElementById("multiplier").innerText =
+          (player.multiplier / 10).toString() + "x";
+        document.getElementById("winnings").innerText =
+          (1 * player.multiplier / 10) + " MON";
+        document.getElementById("cashOut").style.display = "inline-block";
+        renderDoors(player.stage);
+      }
     } else {
       if (document.getElementById("stage")) {
         document.getElementById("stage").innerText = "-";
@@ -142,7 +148,7 @@ function renderDoors(stage) {
   if (!doorsContainer) return;
 
   doorsContainer.innerHTML = "";
-  let numDoors = Math.floor(Math.random() * 4) + 5; // 5-8 doors
+  let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
