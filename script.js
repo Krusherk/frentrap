@@ -199,30 +199,27 @@ function renderDoors(stage) {
   doorsContainer.innerHTML = "";
 
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
-
-  // Randomly choose 1 trap door
-  const trap = Math.floor(Math.random() * numDoors);
+  const trap = Math.floor(Math.random() * numDoors); // pick trap index
 
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
+    door.style.backgroundImage = "url('pindoor.png')";
     door.setAttribute("data-num", i + 1);
 
     door.onclick = async () => {
-      // Disable all doors after one is picked
+      // disable all doors after one is clicked
       const allDoors = document.querySelectorAll(".door");
       allDoors.forEach(d => d.style.pointerEvents = "none");
 
-      // Shake animation only for the chosen door
+      // only clicked door shakes
       door.classList.add("shake");
       setTimeout(() => door.classList.remove("shake"), 500);
 
       if (i === trap) {
-        // 🚪 Trap chosen → Game over
         alert("💥 Oh no! That was the trap door. Game Over.");
         await resetGame();
       } else {
-        // ✅ Safe → continue game onchain
         alert("🎉 Safe! Proceeding to the next stage...");
         await pickDoor(i, numDoors);
       }
@@ -232,24 +229,3 @@ function renderDoors(stage) {
   }
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  const doorContainer = document.getElementById("doors");
-  if (!doorContainer) return;
-
-  const numDoors = 5;
-  for (let i = 0; i < numDoors; i++) {
-    const door = document.createElement("div");
-    door.className = "door";
-    door.style.backgroundImage = "url('pindoor.png')";
-    door.dataset.index = i;
-
-    door.addEventListener("click", () => {
-      const statusEl = document.getElementById("status");
-      if (statusEl) statusEl.textContent = `You picked door #${i + 1}`;
-      door.classList.add("shake");
-      setTimeout(() => door.classList.remove("shake"), 300);
-    });
-
-    doorContainer.appendChild(door);
-  }
-});
