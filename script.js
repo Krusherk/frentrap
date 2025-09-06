@@ -101,10 +101,23 @@ async function pickDoor(choice, numDoors) {
   try {
     let tx = await contract.pickDoor(choice, numDoors);
     await tx.wait();
+
+    // Assume backend tells us result later
     alert("🚪 Door picked!");
     loadGame();
   } catch (err) {
-    alert("Error: " + err.message);
+    console.log(err);
+
+    // 🔥 Shake animation on the clicked door
+    const doors = document.querySelectorAll(".door");
+    if (doors[choice]) {
+      doors[choice].classList.add("shake");
+      setTimeout(() => {
+        doors[choice].classList.remove("shake");
+      }, 500);
+    }
+
+    alert("💥 Trap! You lost this round.");
   }
 }
 
