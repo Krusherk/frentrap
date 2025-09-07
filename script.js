@@ -224,6 +224,13 @@ function renderDoors(stage) {
 
   let numDoors = Math.floor(Math.random() * 4) + 5; // 5–8 doors
 
+  // 🎯 Randomly select 3–4 traps
+  let trapCount = Math.floor(Math.random() * 2) + 3; // 3 or 4 traps
+  let trapIndexes = new Set();
+  while (trapIndexes.size < trapCount) {
+    trapIndexes.add(Math.floor(Math.random() * numDoors));
+  }
+
   for (let i = 0; i < numDoors; i++) {
     const door = document.createElement("div");
     door.classList.add("door");
@@ -234,12 +241,21 @@ function renderDoors(stage) {
       const allDoors = document.querySelectorAll(".door");
       allDoors.forEach(d => (d.style.pointerEvents = "none"));
 
-      door.classList.add("shake");
-      setTimeout(() => door.classList.remove("shake"), 500);
-
-      await pickDoor(i, numDoors);
+      // 💥 Trap door
+      if (trapIndexes.has(i)) {
+        door.classList.add("shake");
+        setTimeout(() => door.classList.remove("shake"), 500);
+        alert("💥 Trap! You lost.");
+        await resetGame(); // end game on trap
+      } else {
+        // ✅ Safe door
+        door.classList.add("safe");
+        alert("🚪 Safe! Proceeding...");
+        await pickDoor(i, numDoors);
+      }
     };
 
     doorsContainer.appendChild(door);
   }
 }
+
