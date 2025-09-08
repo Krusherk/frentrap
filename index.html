@@ -4,6 +4,37 @@
   <meta charset="UTF-8">
   <title>Pick-a-Door</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .reward-system {
+      margin: 20px auto;
+      padding: 15px;
+      max-width: 600px;
+      background: #1a001f;
+      color: #fff;
+      border: 2px solid #fff;
+      border-radius: 8px;
+      font-family: 'Press Start 2P', cursive;
+      text-align: left;
+      line-height: 1.6;
+    }
+    footer {
+      margin-top: 40px;
+      padding: 10px;
+      border-top: 2px solid #fff;
+      font-family: 'Press Start 2P', cursive;
+      text-align: center;
+    }
+    .pixel-text {
+      font-family: 'Press Start 2P', cursive;
+    }
+    .link-text {
+      color: #ff66cc;
+      text-decoration: none;
+    }
+    .link-text:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <h1>🚪 Pick-a-Door Game</h1>
@@ -18,7 +49,28 @@
     <button id="withdrawBtn">Withdraw</button>
   </div>
 
+  <!-- ✅ Reward system explanation -->
+  <div class="reward-system">
+    <h2>💰 Reward System</h2>
+    <p>Each stage increases your multiplier. If you pick a safe door, you advance.</p>
+    <ul>
+      <li>Stage 1 → 1.2×</li>
+      <li>Stage 2 → 1.5×</li>
+      <li>Stage 3 → 2×</li>
+      <li>Stage 4 → 3×</li>
+      <li>...and so on</li>
+    </ul>
+    <p>If you hit a trap 🚫, you lose your stake.</p>
+    <p>You can cash out anytime to claim your winnings.</p>
+  </div>
+
   <p id="status"></p>
+
+  <!-- ✅ Footer -->
+  <footer>
+    <span class="pixel-text">Developed by</span>
+    <a href="https://x.com/0xqowiyy" target="_blank" class="pixel-text link-text"> Crack</a>
+  </footer>
 
   <!-- ✅ Load ethers v6 -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
