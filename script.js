@@ -9,7 +9,7 @@ const CONTRACT_ABI = [
   "function owner() view returns (address)"
 ];
 
-let provider, signer, contract, userAddress, ownerAddress;
+let provider, signer, contract, userAddress;
 const { ethers } = window;
 
 window.addEventListener("load", async () => {
@@ -30,7 +30,6 @@ window.addEventListener("load", async () => {
   if (document.getElementById("claimBtn"))
     document.getElementById("claimBtn").onclick = cashOut; // claim button = cashOut
 
-  // ✅ On page load, just check game state
   loadGame();
 });
 
@@ -46,9 +45,6 @@ async function connectWallet() {
 
     contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-    // ✅ Remove owner() call for normal users
-    // If you really need owner-only controls, check them in Solidity instead
-
     localStorage.setItem("connected", "true");
     localStorage.setItem("userAddress", userAddress);
 
@@ -60,8 +56,8 @@ async function connectWallet() {
     if (document.getElementById("startBtn"))
       document.getElementById("startBtn").disabled = false;
 
-    // ✅ Optional: Only show owner panel if *you* manually set your address
-    const MY_ADDRESS = "0xaF18599A30d6462B6a99e6EEA71b13e3971f02d5"; 
+    // Show house panel if your wallet is owner
+    const MY_ADDRESS = "0xaF18599A30d6462B6a99e6EEA71b13e3971f02d5";
     if (userAddress.toLowerCase() === MY_ADDRESS.toLowerCase()) {
       if (document.getElementById("ownerPanel")) {
         document.getElementById("ownerPanel").style.display = "block";
@@ -82,7 +78,13 @@ async function startGame() {
     return;
   }
   try {
-    let player = await contract.players(userAddress);
+    let player;
+    try {
+      player = await contract.players(userAddress);
+    } catch {
+      // New wallet — no entry yet
+      player = { active: false, stage: 0, multiplier: 0 };
+    }
 
     if (player.active) {
       if (confirm("⚠️ You already have an active game. Do you want to reset it first?")) {
@@ -176,7 +178,12 @@ async function loadGame() {
   if (!contract) return;
 
   try {
-    let player = await contract.players(userAddress);
+    let player;
+    try {
+      player = await contract.players(userAddress);
+    } catch {
+      player = { active: false, stage: 0, multiplier: 0 };
+    }
 
     if (player.active) {
       if (document.getElementById("stage"))
@@ -190,7 +197,6 @@ async function loadGame() {
 
       if (document.getElementById("cashOut"))
         document.getElementById("cashOut").style.display = "inline-block";
-
       if (document.getElementById("claimBtn"))
         document.getElementById("claimBtn").style.display = "inline-block";
 
@@ -246,7 +252,7 @@ function renderDoors(stage) {
         door.classList.add("shake");
         setTimeout(() => door.classList.remove("shake"), 500);
         alert("💥 Trap! You lost.");
-        await resetGame(); // end game on trap
+        await resetGame();
       } else {
         // ✅ Safe door
         door.classList.add("safe");
@@ -258,4 +264,3 @@ function renderDoors(stage) {
     doorsContainer.appendChild(door);
   }
 }
-
